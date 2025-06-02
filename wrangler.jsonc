@@ -1,5 +1,6 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "suggestions",
 	"compatibility_flags": ["nodejs_compat"],
-	"compatibility_date": "2025-06-02",
+	"compatibility_date": "2025-05-06",
 }
