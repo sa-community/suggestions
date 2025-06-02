@@ -1,0 +1,11 @@
+name = "suggestions"
+compatibility_date = "2025-05-06"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "pnpm build"
+watch_dir = "*"
+
+[build.upload]
+format = "directory"
+dir = ".svelte-kit/cloudflare"
