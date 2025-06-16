@@ -9,6 +9,27 @@ import { eq } from "drizzle-orm";
 import { OAUTH_CALLBACK_URL } from "$env/static/private";
 import { DAY_IN_MS } from "$lib";
 
+function extractErrorInfo(err: unknown): Record<string, unknown> {
+	if (err instanceof Error) {
+		const plainError = {
+			name: err.name,
+			message: err.message,
+			stack: err.stack,
+			...Object.fromEntries(
+				Object.getOwnPropertyNames(err)
+					.filter((k) => !["name", "message", "stack"].includes(k))
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					.map((k) => [k, (err as any)[k]]),
+			),
+		};
+		return plainError;
+	}
+	if (typeof err === "object" && err !== null) {
+		return Object.fromEntries(Object.entries(err).map(([k, v]) => [k, String(v)]));
+	}
+	return { value: String(err) };
+}
+
 export const load: PageServerLoad = async (event) => {
 	const { url } = event;
 
@@ -46,8 +67,10 @@ export const load: PageServerLoad = async (event) => {
 			username = githubUser.login;
 			displayName = githubUser.name;
 		} catch (error) {
-			console.error(error);
-			redirect(307, "/auth/error?" + JSON.stringify(error));
+			const info = extractErrorInfo(error);
+
+			console.error(info);
+			redirect(307, "/auth/error?" + encodeURIComponent(JSON.stringify(info)));
 		}
 	}
 
