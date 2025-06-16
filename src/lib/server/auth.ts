@@ -31,8 +31,7 @@ export async function createSession(
 			displayName: user.displayName,
 			expiresAt,
 		}),
-		"PX",
-		DAY_IN_MS * 30,
+		{ px: DAY_IN_MS * 30 },
 	);
 
 	return { id: sessionId, userId: user.id, expiresAt: new Date(expiresAt) };
@@ -40,7 +39,7 @@ export async function createSession(
 
 export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const sessionData = await redis.get(sessionId);
+	const sessionData: string | null = JSON.stringify(await redis.get(sessionId));
 
 	if (!sessionData) {
 		return { session: null, user: null };
@@ -58,8 +57,7 @@ export async function validateSessionToken(token: string) {
 		await redis.set(
 			sessionId,
 			JSON.stringify({ userId, username, displayName, expiresAt: newExpiresAt }),
-			"PX",
-			DAY_IN_MS * 30,
+			{ px: DAY_IN_MS * 30 },
 		);
 	}
 
