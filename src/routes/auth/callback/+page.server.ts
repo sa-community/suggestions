@@ -9,27 +9,6 @@ import { eq } from "drizzle-orm";
 import { OAUTH_CALLBACK_URL } from "$env/static/private";
 import { DAY_IN_MS } from "$lib";
 
-function extractErrorInfo(err: unknown): Record<string, unknown> {
-	if (err instanceof Error) {
-		const plainError = {
-			name: err.name,
-			message: err.message,
-			stack: err.stack,
-			...Object.fromEntries(
-				Object.getOwnPropertyNames(err)
-					.filter((k) => !["name", "message", "stack"].includes(k))
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					.map((k) => [k, (err as any)[k]]),
-			),
-		};
-		return plainError;
-	}
-	if (typeof err === "object" && err !== null) {
-		return Object.fromEntries(Object.entries(err).map(([k, v]) => [k, String(v)]));
-	}
-	return { value: String(err) };
-}
-
 export const load: PageServerLoad = async (event) => {
 	const { url } = event;
 
@@ -45,39 +24,33 @@ export const load: PageServerLoad = async (event) => {
 	let displayName;
 
 	if (oauthProvider === "github") {
-		try {
-			if (!code || !state) {
-				redirect(307, "/auth/error");
-			}
-
-			const tokens = await github.validateAuthorizationCode(code);
-			const accessToken = tokens.accessToken();
-
-			const response = await fetch("https://api.github.com/user", {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"User-Agent": "sa-suggestions",
-				},
-			});
-
-			if (!response.ok) {
-				const text = await response.text();
-				throw new Error(`GitHub API error ${response.status}: ${text}`);
-			}
-
-			const githubUser = await response.json();
-
-			if (!githubUser) redirect(307, "/auth/error");
-
-			oauthId = githubUser.id;
-			username = githubUser.login;
-			displayName = githubUser.name;
-		} catch (error) {
-			const info = extractErrorInfo(error);
-
-			console.error(info);
-			redirect(307, "/auth/error?" + encodeURIComponent(JSON.stringify(info)));
+		if (!code || !state) {
+			redirect(307, "/auth/error");
 		}
+
+		const tokens = await github.validateAuthorizationCode(code);
+		const accessToken = tokens.accessToken();
+
+		const response = await fetch("https://api.github.com/user", {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				// And they ask me "Jazza why are you suicidal?"
+				"User-Agent": "sa-suggestions",
+			},
+		});
+
+		if (!response.ok) {
+			const text = await response.text();
+			throw new Error(`GitHub API error ${response.status}: ${text}`);
+		}
+
+		const githubUser = await response.json();
+
+		if (!githubUser) redirect(307, "/auth/error");
+
+		oauthId = githubUser.id;
+		username = githubUser.login;
+		displayName = githubUser.name;
 	}
 
 	if (oauthProvider === "scratch") {
