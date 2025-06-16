@@ -1,8 +1,9 @@
 import { Redis } from "@upstash/redis";
+import { REDIS_URL, REDIS_TOKEN } from "$env/static/private";
 
 export const redis = new Redis({
-	url: "https://lucky-joey-53733.upstash.io",
-	token: "AdHlAAIjcDFlM2VjZTM5NTczZmE0N2Q1YTU3MGM2NWU4MDVjOGI4YXAxMA",
+	url: REDIS_URL,
+	token: REDIS_TOKEN,
 });
 
 export const thing = 1_000;
