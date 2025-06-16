@@ -24,26 +24,31 @@ export const load: PageServerLoad = async (event) => {
 	let displayName;
 
 	if (oauthProvider === "github") {
-		if (!code || !state) {
-			redirect(307, "/auth/error");
+		try {
+			if (!code || !state) {
+				redirect(307, "/auth/error");
+			}
+
+			const tokens = await github.validateAuthorizationCode(code);
+			const accessToken = tokens.accessToken();
+
+			const response = await fetch("https://api.github.com/user", {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			});
+
+			const githubUser = await response.json();
+
+			if (!githubUser) redirect(307, "/auth/error");
+
+			oauthId = githubUser.id;
+			username = githubUser.login;
+			displayName = githubUser.name;
+		} catch (error) {
+			console.error(error);
+			redirect(307, "/auth/error?" + JSON.stringify(error));
 		}
-
-		const tokens = await github.validateAuthorizationCode(code);
-		const accessToken = tokens.accessToken();
-
-		const response = await fetch("https://api.github.com/user", {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
-
-		const githubUser = await response.json();
-
-		if (!githubUser) redirect(307, "/auth/error");
-
-		oauthId = githubUser.id;
-		username = githubUser.login;
-		displayName = githubUser.name;
 	}
 
 	if (oauthProvider === "scratch") {
