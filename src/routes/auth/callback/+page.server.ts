@@ -59,6 +59,11 @@ export const load: PageServerLoad = async (event) => {
 				},
 			});
 
+			if (!response.ok) {
+				const text = await response.text();
+				throw new Error(`GitHub API error ${response.status}: ${text}`);
+			}
+
 			const githubUser = await response.json();
 
 			if (!githubUser) redirect(307, "/auth/error");
