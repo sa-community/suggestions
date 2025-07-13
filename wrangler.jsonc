@@ -3,5 +3,8 @@
 	"name": "sa-suggestions",
 	"compatibility_date": "2025-06-16",
 	"compatibility_flags": ["nodejs_compat"],
-	"pages_build_output_dir": ".svelte-kit/cloudflare"
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
+	"vars": {
+		"NODE_VERSION": "24.x"
+	}
 }
