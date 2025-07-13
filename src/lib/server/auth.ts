@@ -31,22 +31,27 @@ export async function createSession(
 			displayName: user.displayName,
 			expiresAt,
 		}),
-		"PX",
-		DAY_IN_MS * 30,
+		{ px: DAY_IN_MS * 30 },
 	);
 
 	return { id: sessionId, userId: user.id, expiresAt: new Date(expiresAt) };
 }
 
 export async function validateSessionToken(token: string) {
+	type Redis = { userId: string; username: string; displayName: string; expiresAt: number };
+
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const sessionData = await redis.get(sessionId);
+	const sessionData: Redis | null = await redis.get(sessionId);
+
+	console.log(sessionData);
 
 	if (!sessionData) {
 		return { session: null, user: null };
 	}
 
-	const { userId, username, displayName, expiresAt } = JSON.parse(sessionData);
+	// Idk if it's the change from ioredis to upstash that broke this, but apparently
+	// they not pre-parse json strings, thanks for nothing
+	const { userId, username, displayName, expiresAt } = sessionData;
 	if (Date.now() >= expiresAt) {
 		await redis.del(sessionId);
 		return { session: null, user: null };
@@ -58,8 +63,7 @@ export async function validateSessionToken(token: string) {
 		await redis.set(
 			sessionId,
 			JSON.stringify({ userId, username, displayName, expiresAt: newExpiresAt }),
-			"PX",
-			DAY_IN_MS * 30,
+			{ px: DAY_IN_MS * 30 },
 		);
 	}
 

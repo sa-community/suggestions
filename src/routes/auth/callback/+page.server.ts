@@ -34,8 +34,15 @@ export const load: PageServerLoad = async (event) => {
 		const response = await fetch("https://api.github.com/user", {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
+				// And they ask me "Jazza why are you suicidal?"
+				"User-Agent": "sa-suggestions",
 			},
 		});
+
+		if (!response.ok) {
+			const text = await response.text();
+			throw new Error(`GitHub API error ${response.status}: ${text}`);
+		}
 
 		const githubUser = await response.json();
 

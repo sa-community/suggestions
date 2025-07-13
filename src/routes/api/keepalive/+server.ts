@@ -6,6 +6,6 @@ export const GET: RequestHandler = async ({ request }) => {
 		return new Response("Unauthorized", { status: 401 });
 	}
 
-	await redis.set("keepalive", Date.now(), "EX", 60);
+	await redis.set("keepalive", Date.now(), { ex: 60 });
 	return new Response("ok", { status: 200 });
 };

@@ -5,14 +5,6 @@
 	import "../app.css";
 	import Header from "./Header.svelte";
 	import Footer from "./Footer.svelte";
-	import { injectAnalytics } from "@vercel/analytics/sveltekit";
-	import { injectSpeedInsights } from "@vercel/speed-insights/sveltekit";
-	import { dev } from "$app/environment";
-
-	if (!dev) {
-		injectAnalytics();
-		injectSpeedInsights();
-	}
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 	const { session } = $derived(data);

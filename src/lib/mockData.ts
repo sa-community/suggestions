@@ -48,6 +48,7 @@ export async function mockSuggestion(userId: string): Promise<Suggestion> {
 			return statuses[Math.floor(Math.random() * statuses.length)];
 		})(),
 		createdAt: new Date(Date.now()),
+		visible: true,
 	};
 }
 
