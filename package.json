@@ -17,7 +17,8 @@
 		"lint": "eslint . && prettier --check .",
 		"preview": "vite preview",
 		"start": "concurrently \"pnpm dev\" \"pnpm db:start\" \"pnpm db:studio\" --kill-others",
-		"uppies": "pnpm up --latest"
+		"uppies": "pnpm up --latest",
+		"deploy:cron": "wrangler deploy --config wrangler.cron.jsonc"
 	},
 	"dependencies": {
 		"@oslojs/crypto": "1.0.1",
