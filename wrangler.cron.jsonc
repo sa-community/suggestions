@@ -4,17 +4,15 @@
 	"compatibility_date": "2025-06-16",
 	"main": "cron-worker.ts",
 	"triggers": {
-		"crons": [
-			"0 0 * * *"
-		]
+		"crons": ["0 0 * * *"],
 	},
 	"vars": {
-		"SITE_URL": "https://suggestions.pages.dev"
+		"SITE_URL": "https://suggestions.pages.dev",
 	},
 	"observability": {
 		"logs": {
 			"enabled": true,
-			"invocation_logs": true
-		}
-	}
+			"invocation_logs": true,
+		},
+	},
 }

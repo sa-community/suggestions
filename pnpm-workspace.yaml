@@ -1,6 +1,6 @@
 onlyBuiltDependencies:
-  - '@sveltejs/kit'
-  - '@vercel/speed-insights'
+  - "@sveltejs/kit"
+  - "@vercel/speed-insights"
   - esbuild
   - sharp
   - workerd
